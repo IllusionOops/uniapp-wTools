@@ -1,0 +1,1 @@
+<view><block wx:if="{{isSupport}}"><view class="content"><image class="logo" src="/static/logo.png" data-event-opts="{{[['tap',[['oneLogin']]]]}}" bindtap="__e"></image><view class="text-area"><text class="title">{{title}}</text></view></view></block><block wx:if="{{!isSupport}}"><view><input placeholder="账号"/><input placeholder="密码"/></view></block></view>

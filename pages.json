@@ -1,0 +1,53 @@
+{
+	"easycom": {
+		"^u-(.*)": "@/uview-ui/components/u-$1/u-$1.vue"
+	},
+	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "登录"
+			}
+		},
+		{
+			"path": "pages/login/index",
+			"style": {
+				"navigationBarTitleText": "登录"
+			}
+		},
+		{
+			"path": "pages/login/code",
+			"style": {
+				"navigationBarTitleText": "登录验证码"
+			}
+		}
+	],
+	"subPackages": [{
+		"root": "pages/note",
+		"pages": [
+			// test-测试
+			{
+				"path": "index",
+				"style": {
+					"navigationBarTitleText": "note"
+					// "navigationStyle": "custom", // 隐藏系统导航栏
+					// "navigationBarTextStyle": "white" // 状态栏字体为白色
+				}
+			}, 
+			{
+				"path": "list/list",
+				"style": {
+					"enablePullDownRefresh": true,
+					"navigationBarTitleText": "垂直排列，无略缩图，主标题+副标题显示"
+				}
+			}
+		]
+	}],
+
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "uni-app",
+		"navigationBarBackgroundColor": "#F8F8F8",
+		"backgroundColor": "#F8F8F8"
+	}
+}
