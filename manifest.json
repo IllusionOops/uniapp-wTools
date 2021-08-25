@@ -81,5 +81,28 @@
     },
     "uniStatistics" : {
         "enable" : false
+    },
+    "h5" : {
+        "title" : "wtools",
+        "sdkConfigs" : {
+            "maps" : {}
+        }
+		// ,
+		// "devServer": {
+		// 	"https": false,
+		// 	"disableHostCheck": true,
+		// 	"port": 6161, // 端口号
+		// 	"proxy": {
+		// 		"/api": {
+		// 			//"target": "http://zwh1.cn1.utools.club",
+		// 			"target": "http://server.aliyun:18081",
+		// 			"changeOrigin": true, // 是否跨域
+		// 			"secure": false, // 设置支持https协议的代理
+		// 			"pathRewrite": {
+		// 				"^/api": "" //通过pathRewrite重写地址，将前缀/api转为/
+		// 			}
+		// 		}
+		// 	}
+		// }
     }
 }

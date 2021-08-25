@@ -1,7 +1,6 @@
 <template>
 	<view class="u-demo">
 		<view class="u-demo-wrap">
-			<view class="u-demo-title">演示效果</view>
 			<view class="u-demo-area">
 				<u-toast ref="uToast"></u-toast>
 				<swiper class="swiper" @change="swiperChange">
@@ -103,16 +102,15 @@
 		},
 		methods: {
 			gridClick(index) {
-				this.$refs.uToast.show({
-					title: `点击了第${index + 1}宫格`,
-					type: 'warning'
-				});
-				// uni.navigateTo({
-				//     url: '/pa'
-				// });
-				uni.navigateTo({
-					url:"/"+this.gridList[index].url
+				this.$u.route({
+					url: this.gridList[index].url,
+					params: {
+						categoryType:'note'
+					}
 				})
+				// uni.navigateTo({
+				// 	url:"/"+this.gridList[index].url
+				// })
 			},
 			swiperChange(e) {
 				this.current = e.detail.current;

@@ -7,20 +7,22 @@
 			</view>
 		</view>
 		<view class="u-menu-wrap">
+			<!-- 左侧分类 -->
 			<scroll-view scroll-y scroll-with-animation class="u-tab-view menu-scroll-view" :scroll-top="scrollTop"
 				:scroll-into-view="itemId">
-				<view v-for="(item,index) in tabbar" :key="index" class="u-tab-item"
+				<view v-for="(item,index) in classifyData" :key="index" class="u-tab-item"
 					:class="[current == index ? 'u-tab-item-active' : '']" @tap.stop="swichMenu(index)">
-					<text class="u-line-1">{{item.name}}</text>
+					<text class="u-line-1">{{item.categoryName}}</text>
 				</view>
 			</scroll-view>
+			<!-- 右侧笔记 -->
 			<scroll-view :scroll-top="scrollRightTop" scroll-y scroll-with-animation class="right-box"
 				@scroll="rightScroll">
 				<view class="page-view">
-					<view class="class-item" :id="'item' + index" v-for="(item , index) in tabbar" :key="index">
+					<view class="class-item" :id="'item' + index" v-for="(item , index) in classifyData" :key="index">
 						<!-- <view class="item-title"> -->
-							<uni-section :title="item.name" type="line">ads</uni-section>
-							<!-- <text>{{item.name}}</text> -->
+						<uni-section :title="item.name" type="line">ads</uni-section>
+						<!-- <text>{{item.name}}</text> -->
 						<!-- </view> -->
 						<view class="item-container">
 
@@ -30,18 +32,19 @@
 							<!-- 基于 uni-list 的页面布局 -->
 							<uni-list>
 								<!-- to 属性携带参数跳转详情页面，当前只为参考 -->
-								<uni-list-item direction="column" v-for="(item1,index1) in item.foods" :key="item.name+index1"
-									:to="'/pages/detail/detail?id='+item._id+'&title='+item1.name">
+								<uni-list-item direction="column" v-for="(item1,index1) in item.foods"
+									:key="item1.title+index1"
+									:to="'/pages/detail/detail?id='+item1.id+'&title='+item1.title">
 									<!-- 通过header插槽定义列表的标题 -->
 									<template v-slot:header>
-										<view class="uni-title">{{item1.name}}</view>
+										<view class="uni-title">{{item1.title}}</view>
 									</template>
 									<!-- 通过body插槽定义列表内容显示 -->
 									<template v-slot:body>
 										<view class="uni-list-box">
 											<view class="uni-content">
-												<view class="uni-title-sub uni-ellipsis-2">{{item1.name}}</view>
-												<view class="uni-note">{{item1.name + ' '+item1.name}}</view>
+												<view class="uni-title-sub uni-ellipsis-2">{{item1.title}}</view>
+												<view class="uni-note">{{item1.link}}</view>
 											</view>
 										</view>
 									</template>
@@ -60,20 +63,35 @@
 						</view>
 					</view>
 				</view>
-
-
-				<!-- <view class="class-item" :id="'item' + index" v-for="(item , index) in tabbar" :key="index">
-						<view class="item-title">
-							<text>{{item.name}}</text>
-						</view>
-						<view class="item-container">
-							<view class="thumb-box" v-for="(item1, index1) in item.foods" :key="index1">
-								<image class="item-menu-image" :src="item1.icon" mode=""></image>
-								<view class="item-menu-name">{{item1.name}}</view>
-							</view>
-						</view>
-					</view> -->
 			</scroll-view>
+			<view>
+				<uni-fab :pattern="uniFabOption.pattern" 
+						:content="uniFabOption.content" 
+						:horizontal="uniFabOption.horizontal" 
+						:vertical="uniFabOption.vertical"
+						:direction="uniFabOption.direction" 
+						@trigger="fabTrigger"
+						@fabClick="fabClick"></uni-fab>
+			</view>
+			<view>
+					<u-popup v-model="popupShow" 
+							mode="bottom" 
+							border-radius="14"
+							:closeable="true"
+							close-icon-pos="top-right"
+							height="600rpx">
+						<view class="popup-content">
+							<scroll-view scroll-y="true" style="height: 500rpx;">
+								<u-form :model="form" ref="uForm">
+									<u-form-item label="标题"><u-input v-model="form.name" :border="true" /></u-form-item>
+									<u-form-item label="链接"><u-input v-model="form.intro" :border="true"/></u-form-item>
+									<u-button style="margin-top: 120rpx;" class='submit-class'>提交</u-button>
+								</u-form>
+							</scroll-view>
+						</view>
+					</u-popup>
+					
+			</view>
 		</view>
 	</view>
 </template>
@@ -82,30 +100,98 @@
 	export default {
 		data() {
 			return {
+				optionParams: {},
+				//悬浮按钮属性
+				uniFabOption:{
+					pattern:{},
+					content:[
+						{
+							"iconPath":"",
+							"selectedIconPath":"/static/image/logo.png",
+							"text":"jgg",
+							"active":"active",
+						},
+						{
+							"iconPath":"",
+							"selectedIconPath":"/static/image/logo.png",
+							"text":"xgg",
+							"active":"",
+						}],
+					horizontal:"right",
+					vertical:"bottom",
+					direction:"horizontal",
+				},
+				doactive:{"active":"","":"active"},
+				
+				//popup
+				popupShow:false,
+				form: {
+						name: '',
+						intro: '',
+						sex: ''
+				},
+				
+				//左侧导航栏
+				classifyData:[],
+				
 				scrollTop: 0, //tab标题的滚动条位置
 				oldScrollTop: 0,
 				current: 0, // 预设当前项的值
 				menuHeight: 0, // 左边菜单的高度
 				menuItemHeight: 0, // 左边菜单item的高度
 				itemId: '', // 栏目右边scroll-view用于滚动的id
-				tabbar: classifyData,
 				menuItemPos: [],
 				arr: [],
 				scrollRightTop: 0, // 右边栏目scroll-view的滚动条高度
 				timer: null, // 定时器
-				
-				loadingStatus:"loading",
+
+				loadingStatus: "loading",
 				tipShow: false // 是否显示顶部提示框
 
 			}
 		},
-		onLoad() {
-
+		onLoad(option) {
+			this.optionParams = option
+			this.getCategoryList(this.optionParams.categoryType)
 		},
 		onReady() {
 			this.getMenuItemTop()
 		},
 		methods: {
+
+			//查询分类字典列表
+			getCategoryList(typeCode) {
+				let params = {
+					"typeCode": 'note'
+				}
+				this.$u.api.getCategoryListByTypeCode(params).then(res => {
+					console.log("分类请求列表：", res)
+					this.classifyData =res.value;
+					this.notePage(this.classifyData[0].id,0)
+					
+				})
+			},
+			notePage(categoryId,index){
+				let params = {
+					"categoryId": categoryId,
+					"pageNum": 1,
+					"pageSize": 20
+				}
+				this.$u.api.notePage(params).then(res=>{
+					this.classifyData[index]['foods']=res.value.records
+				})
+			},
+			
+			//悬浮按钮触发方法
+			fabTrigger(option) {
+				console.log("悬浮按钮---------------",option)
+				this.uniFabOption.content[option.index].active=this.doactive[this.uniFabOption.content[option.index].active];
+				this.popupShow=!this.popupShow;
+			},
+			fabClick() {
+				console.log("fabClick---:")
+			},
+
 			// 点击左边的栏目切换
 			async swichMenu(index) {
 				if (this.arr.length == 0) {
@@ -140,7 +226,7 @@
 			},
 			// 观测元素相交状态
 			async observer() {
-				this.tabbar.map((val, index) => {
+				this.classifyData.map((val, index) => {
 					let observer = uni.createIntersectionObserver(this);
 					// 检测右边scroll-view的id为itemxx的元素与right-box的相交状态
 					// 如果跟.right-box底部相交，就动态设置左边栏目的活动状态
@@ -239,6 +325,15 @@
 
 <style lang="scss" scoped>
 	@import '@/common/uni-ui.scss';
+	
+	//弹出层
+	.popup-content {
+		padding: 110rpx 40rpx 24rpx 40rpx;
+		text-align: center;
+	}
+	.submit-class{
+		width: 400rpx;
+	}
 
 	page {
 		display: flex;

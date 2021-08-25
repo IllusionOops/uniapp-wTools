@@ -119,6 +119,25 @@
 			},
 			loginFormSubmit() {
 				console.log(this.loginForm.account + "  " + this.loginForm.password)
+				this.$u.api.login(this.loginForm).then(res=>{
+					this.$u.toast(res.msg);
+					if (res.code ==200) {
+						uni.setStorage({
+						    key: 'token',
+						    data: res.value,
+						    success: function () {
+						        console.log('set token success');
+						    }
+						});
+						setTimeout(() => {
+							this.$u.route({
+								url: 'pages/index/index',
+								params: {
+								}
+							})
+						}, 200)
+					}
+				})
 			}
 		},
 
