@@ -4,8 +4,8 @@
 const install = (Vue, vm) => {
 	// 此为自定义配置参数，具体参数见上方说明
 	Vue.prototype.$u.http.setConfig({
-		// baseUrl: 'http://server.aliyun:18081', // 请求的本域名
-		baseUrl: 'http://localhost:18081',
+		baseUrl: 'http://39.105.158.166:18081', // 请求的本域名
+		// baseUrl: 'http://localhost:18081',
 		// method: 'POST',
 		// 设置为json，返回后会对数据进行一次JSON.parse()
 		dataType: 'json',

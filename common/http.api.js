@@ -7,7 +7,7 @@ let loginUrl = '/sys-user/login';
 let getListByTypeCodeUrl = '/sys-category/getListByTypeCode'
 
 //笔记列表查询url
-let notePageUrl = '/tools-note/page'
+let getNotePageUrl = '/tools-note/page'
 
 
 // 此处第二个参数vm，就是我们在页面使用的this，你可以通过vm获取vuex等操作，更多内容详见uView对拦截器的介绍部分：
@@ -21,11 +21,11 @@ const install = (Vue, vm) => {
 	let getCategoryListByTypeCode = (params = {}) => vm.$u.get(getListByTypeCodeUrl, params);
 	
 	//笔记列表查询
-	let notePage = (params = {"categoryId":"218468297832599552","pageNum": 1,
-	"pageSize": 20})=>vm.$u.post(notePageUrl,params)
+	let getNotePage = (params = {"categoryId":"218468297832599552","pageNum": 1,
+	"pageSize": 20})=>vm.$u.post(getNotePageUrl,params)
 	
 	// 将各个定义的接口名称，统一放进对象挂载到vm.$u.api(因为vm就是this，也即this.$u.api)下
-	vm.$u.api = {login,getCategoryListByTypeCode,notePage};
+	vm.$u.api = {login,getCategoryListByTypeCode,getNotePage};
 }
 
 export default {
