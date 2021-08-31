@@ -1,112 +1,94 @@
 <template>
-	<view class="wrap">
-		<view class="key-input">
-			<view class="title">输入验证码</view>
-			<view class="tips">验证码已发送至 +150****9320</view>
-			<u-message-input :focus="true" :value="value" @change="change" @finish="finish" mode="bottomLine" :maxlength="maxlength"></u-message-input>
-			<text :class="{ error: error }">验证码错误，请重新输入</text>
-			<view class="captcha">
-				<text :class="{ noCaptcha: show }" @tap="noCaptcha">收不到验证码点这里</text>
-				<text :class="{ regain: !show }">{{ second }}秒后重新获取验证码</text>
-			</view>
-		</view>
-	</view>
+    <view class="content">
+        <hj-dragabledrawer :options="options" ref="dragBox" @open="afterOpen" @close="afterClose">
+            <button @tap="hello">hi</button>
+            <text>不建议使用v-for进行列表渲染</text>
+            <text style="background-color: red;">单击蒙层也会关闭</text>
+            <text>如需自定义抽屉内容布局，可把这些内容放在一个宽高100%的view里面哦</text>
+            <button @tap="close">close</button>
+            <view v-for="i in 10" :key="i">{{ i }}</view>
+        </hj-dragabledrawer>
+       <!-- <button @tap="open">打开</button>
+        <button @tap="toggle">L/R模式切换</button>
+        <button @tap="toggle1">mask模式切换</button>
+        <text>
+            当前模式：
+            <text v-if="!options.rightMode">左侧弹出</text>
+            <text v-else="">右侧弹出</text>
+        </text>
+        <text>遮罩：{{ options.mask ? '有' : '无' }}</text> -->
+    </view>
 </template>
-
 <script>
+import hjDragabledrawer from '@/components/hj-dragabledrawer/hj-dragabledrawer.vue'; //这里修改下插件的相对路径
+let dragBox;
 export default {
-	data() {
-		return {
-			maxlength: 4,
-			value: '',
-			second: 3,
-			show: false,
-			error: false
-		};
-	},
-	computed: {},
-	onLoad() {
-		// this.getCaptcha()
-		let interval = setInterval(() => {
-			this.second--;
-			if (this.second <= 0) {
-				this.show = true;
-				if (this.value.lenth != 4) {
-					this.error = true;
-				}
-				clearInterval(interval);
-			}
-		}, 1000);
-	},
-	methods: {
-		// 收不到验证码选择时的选择
-		noCaptcha() {
-			uni.showActionSheet({
-				itemList: ['重新获取验证码', '接听语音验证码'],
-				success: function(res) {
-					
-				},
-				fail: function(res) {
-					
-				}
-			});
-		},
-		// change事件侦听
-		change(value) {
-			console.log('change', value);
-		},
-		// 输入完验证码最后一位执行
-		finish(value) {
-			console.log('finish', value);
-		}
-	}
+    data() {
+        return {
+            options: {
+                visible: false,
+                rightMode: false,
+                autoClose: true,
+                pulldown: true
+            }
+        };
+    },
+    onReady() {
+        dragBox = this.$refs.dragBox;
+    },
+    components: {
+        hjDragabledrawer
+    },
+    methods: {
+        open() {
+            dragBox.open();
+        },
+        hello() {
+            uni.showToast({
+                title: 'hello',
+                icon: 'none'
+            });
+        },
+        close() {
+            dragBox.close();
+        },
+        toggle() {
+            this.options.rightMode = !this.options.rightMode;
+        },
+        toggle1() {
+            this.$set(this.options, 'mask', !this.options.mask);
+        },
+        afterOpen() {
+            uni.showToast({
+                title: 'open',
+                icon: 'none'
+            });
+        },
+        afterClose() {
+            uni.showToast({
+                title: 'close',
+                icon: 'none'
+            });
+        }
+    }
 };
 </script>
-
-<style lang="scss" scoped>
-.wrap {
-	padding: 80rpx;
+<style scoped="">
+.content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-.box {
-	margin: 30rpx 0;
-	font-size: 30rpx;
-	color: 555;
+button {
+    margin: 20upx;
+    padding: 20upx;
+    font-size: 32upx;
+    width: 60%;
 }
 
-.key-input {
-	padding: 30rpx 0;
-	text {
-		display: none;
-	}
-	.error {
-		display: block;
-		color: red;
-		font-size: 30rpx;
-		margin: 20rpx 0;
-	}
-}
-
-.title {
-	font-size: 50rpx;
-	color: #333;
-}
-
-.key-input .tips {
-	font-size: 30rpx;
-	color: #333;
-	margin-top: 20rpx;
-	margin-bottom: 60rpx;
-}
-.captcha {
-	color: $u-type-warning;
-	font-size: 30rpx;
-	margin-top: 40rpx;
-	.noCaptcha {
-		display: block;
-	}
-	.regain {
-		display: block;
-	}
+text {
+    margin: 20upx;
+    font-size: 24upx;
 }
 </style>

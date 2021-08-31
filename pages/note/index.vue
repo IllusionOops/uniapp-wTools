@@ -13,7 +13,7 @@
 				<scroll-view scroll-y scroll-with-animation class="u-tab-view menu-scroll-view" :scroll-top="scrollTop">
 					<button @click="closeDrawer" type="primary">关闭Drawer</button>
 					<view v-for="(item,index) in mainDataArr" :key="index" class="u-tab-item"
-						:class="[current==index ? 'u-tab-item-active' : '']" :data-current="index"
+						:class="[categoryListIndex==index ? 'u-tab-item-active' : '']" :data-current="index"
 						@tap.stop="swichMenu(index)">
 						<text class="u-line-1">{{item.categoryName}}</text>
 					</view>
@@ -23,50 +23,46 @@
 		<!-- 主要列表展示 -->
 		<view class="u-menu-wrap">
 			<block v-for="(item,index) in mainDataArr" :key="index">
-				<scroll-view scroll-y class="right-box" v-if="current==index">
+				<scroll-view scroll-y class="right-box" v-if="categoryListIndex==index">
 					<view class="page-view">
 						<view class="class-item">
-							<uni-section :title="item.categoryName" type="line">{{item.categoryName}}</uni-section>
-
-							<!-- <view class="item-title">
-								<text>{{item.categoryName}}</text>
-							</view> -->
 							<view class="item-container">
-								<!-- 基于 uni-list 的页面布局 -->
-								<uni-list style="width: 100%;">
-									<!-- to 属性携带参数跳转详情页面，当前只为参考 -->
-									<uni-list-item direction="column" v-for="(item1,index1) in item.records"
-										:key="item1.title+index1"
-										:to="'/pages/detail/detail?id='+item1.id+'&title='+item1.title">
-										<!-- 通过header插槽定义列表的标题 -->
-										<template v-slot:header>
-											<view class="uni-title">
-												<uni-link :href="item1.link" :text="item1.title" color="#0000FF"
-													copyTips="这是复制时显示的提示语" :showUnderLine="true"></uni-link>
-											</view>
-										</template>
-										<!-- 通过body插槽定义列表内容显示 -->
-										<template v-slot:body>
-											<view class="uni-list-box">
-												<view class="uni-content">
-													<view class="uni-title-sub uni-ellipsis-2">
-														<uni-link :href="item1.link" :text="item1.link" color="#0000FF"
-															copyTips="这是复制时显示的提示语" :showUnderLine="true"></uni-link>
-													</view>
-													<view class="uni-note">{{item1.updateTime}}</view>
+								<!-- 滑动操作 -->
+								<u-swipe-action :disabled="false" :btn-width="200"
+									@content-click="clickSwipeActionContent" bg-color="rgb(250, 250, 250)"
+									v-for="(item1, index1) in item.records" :key="item1.id" :show="item1.show"
+									:index="index1" @click="clickSwipeAction" @close="closeSwipeAction"
+									@open="openSwipeAction" :options="swipeActionOption.options">
+									<!-- 此层wrap在此为必写的，否则可能会出现标题定位错误 -->
+									<view class="title-wrap title-swipe-action ">
+										<text class="u-line-2">{{ item1.title }}</text>
+									</view>
+
+									<view class="title-wrap title3-swipe-action ">
+										<text class="u-line-2">{{ item1.remark }}</text>
+									</view>
+
+									<view class="title-wrap title1-swipe-action" style="margin-left: -20rpx;">
+										<uni-link :href="item1.link" :text="item1.link" copyTips="这是复制时显示的提示语">
+										</uni-link>
+									</view>
+									<view class="title-wrap title2-swipe-action">
+										<u-row gutter="16">
+											<u-col span="4">
+												<view class="demo-layout">
+													{{item1.source}}
 												</view>
-											</view>
-										</template>
-										<!-- 同步footer插槽定义列表底部的显示效果 -->
-										<template v-slot:footer>
-											<view class="uni-footer">
-												<text class="uni-footer-text">评论</text>
-												<text class="uni-footer-text">点赞</text>
-												<text class="uni-footer-text">分享</text>
-											</view>
-										</template>
-									</uni-list-item>
-								</uni-list>
+											</u-col>
+											<u-col span="7">
+												<view class="demo-layout">
+													{{item1.updateTime}}
+												</view>
+											</u-col>
+										</u-row>
+
+									</view>
+									<u-line border-style="dashed"></u-line>
+								</u-swipe-action>
 							</view>
 						</view>
 					</view>
@@ -80,30 +76,50 @@
 				:horizontal="uniFabOption.horizontal" :vertical="uniFabOption.vertical"
 				:direction="uniFabOption.direction" @trigger="fabTrigger" @fabClick="fabClick"></uni-fab>
 		</view>
-		<!-- 悬浮框--添加弹出框 -->
+		<!-- 悬浮框--笔记添加弹出框 -->
 		<view>
-			<u-popup v-model="uniFabOption.popupShow" mode="bottom" border-radius="14" :closeable="true"
+			<u-popup v-model="uniFabOption.notePopupShow" mode="bottom" border-radius="14" :closeable="true"
 				close-icon-pos="top-right" height="600rpx">
 				<view class="popup-content">
-					<scroll-view scroll-y="true" style="height: 500rpx;">
-						<u-form :model="uniFabOption.popupForm" ref="uForm">
-							<u-form-item label="标题">
-								<u-input v-model="uniFabOption.popupForm.name" :border="true" />
-							</u-form-item>
-							<u-form-item label="链接">
-								<u-input v-model="uniFabOption.popupForm.intro" :border="true" />
-							</u-form-item>
-							<u-form-item label="来源">
-								<uni-combox label="" :candidates="uniFabOption.popupForm.linkSourceArr"
-									placeholder="请选择链接来源" v-model="uniFabOption.popupForm.city"></uni-combox>
-							</u-form-item>
-
-							<u-button style="margin-top: 120rpx;" class='submit-class'>提交</u-button>
-						</u-form>
-					</scroll-view>
+					<u-form :model="uniFabOption.notePopupForm" ref="noteForm">
+						<u-form-item label="来源">
+							<uni-combox style="width: 100%;height: 70rpx;border: 2rpx solid #dcdfe6;border-radius:8rpx;"
+								label="" labelWidth="400rpx" :candidates="noteSourceOption.arr" placeholder="请选择链接来源"
+								v-model="uniFabOption.notePopupForm.source"></uni-combox>
+						</u-form-item>
+						<u-form-item label="链接">
+							<u-input v-model="uniFabOption.notePopupForm.link" :border="true" />
+						</u-form-item>
+						<u-form-item label="备注">
+							<u-input v-model="uniFabOption.notePopupForm.remark" :border="true" />
+						</u-form-item>
+						<u-button v-if="uniFabOption.notePopupForm.doAdd" style="margin-top: 30rpx;"
+							class='submit-btn-popup-form' @click="noteAdd">添加
+						</u-button>
+						<u-button v-if="uniFabOption.notePopupForm.doAdd==false" style="margin-top: 30rpx;"
+							class='submit-btn-popup-form' @click="noteUpdate">修改
+						</u-button>
+					</u-form>
 				</view>
 			</u-popup>
 		</view>
+
+		<!-- 悬浮框--分类添加弹出框 -->
+		<view>
+			<u-popup v-model="uniFabOption.categoryPopupShow" mode="bottom" border-radius="14" :closeable="true"
+				close-icon-pos="top-right" height="400rpx">
+				<view class="popup-content">
+					<u-form :model="uniFabOption.categoryPopupForm" ref="categoryForm">
+						<u-form-item label="类型">
+							<u-input v-model="uniFabOption.categoryPopupForm.name" :border="true" />
+						</u-form-item>
+						<u-button style="margin-top: 30rpx;" class='submit-btn-popup-form' @click="categoryAdd">提交
+						</u-button>
+					</u-form>
+				</view>
+			</u-popup>
+		</view>
+
 	</view>
 </template>
 
@@ -113,18 +129,23 @@
 			return {
 				// 界面接收到的参数
 				pageParam: {},
-				// 是否是第一次加载
-				doFirstLoad: true,
 
 				scrollTop: 0, //tab标题的滚动条位置
-				current: 0, // 预设当前项的值
+				categoryListIndex: 0, // 预设当前项的值
+				categoryId: "",
 				menuHeight: 0, // 左边菜单的高度
 				menuItemHeight: 0, // 左边菜单item的高度
 
 				//主要数据集
 				mainDataArr: [],
 				_mainDataArr: [],
-				categoryId: "",
+				noteListIndex: 0,
+
+				noteSourceOption: {
+					arr: [],
+					infoArr: []
+				},
+
 				//悬浮按钮属性
 				uniFabOption: {
 					// 悬浮按钮弹框的激活标志
@@ -133,28 +154,37 @@
 						"": "active"
 					},
 					//popup
-					popupShow: false,
-					popupForm: {
+					notePopupShow: false,
+					notePopupForm: {
+						id: "",
+						remark: '',
+						link: '',
+						source: "",
+
+						// 是否是添加模式
+						doAdd: true
+					},
+					categoryPopupShow: false,
+					categoryPopupForm: {
 						name: '',
-						intro: '',
-						city: "",
-						linkSourceArr: ['知乎',
-							'CSDN',
-							'博客园',
-							'微博'
-						],
 					},
 					pattern: {},
 					content: [{
-							"iconPath": "",
-							"selectedIconPath": "/static/image/logo.png",
-							"text": "打开",
+							"iconPath": "/static/image/note/navigation.png",
+							"selectedIconPath": "/static/image/note/navigation_blue.png",
+							"text": "导航",
 							"active": "active",
 						},
 						{
-							"iconPath": "",
-							"selectedIconPath": "/static/image/logo.png",
+							"iconPath": "/static/image/note/add.png",
+							"selectedIconPath": "/static/image/note/add_blue.png",
 							"text": "添加",
+							"active": "",
+						},
+						{
+							"iconPath": "/static/image/note/add.png",
+							"selectedIconPath": "/static/image/note/add_blue.png",
+							"text": "添加分类",
 							"active": "",
 						}
 					],
@@ -162,10 +192,22 @@
 					vertical: "bottom",
 					direction: "horizontal",
 				},
-
-
-
-
+				// 滑块
+				swipeActionOption: {
+					options: [{
+							text: '修改',
+							style: {
+								backgroundColor: '#007aff'
+							}
+						},
+						{
+							text: '删除',
+							style: {
+								backgroundColor: '#dd524d'
+							}
+						}
+					]
+				},
 			}
 		},
 		computed: {
@@ -176,14 +218,15 @@
 		// onShow 监听页面显示。页面每次出现在屏幕上都触发，包括从下级页面点返回露出当前页面
 		// onReady 监听页面初次渲染完成。注意如果渲染速度快，会在页面进入动画完成前触发
 		onLoad(option) {
+			this.getWebSiteSources();
 			this.pageParam = option;
 			this.getCategoryList(this.pageParam.categoryType);
 		},
 		methods: {
 			// 点击左边的栏目切换
 			async swichMenu(index) {
-				this.current = index;
-				if (index == this.current) return;
+				this.categoryListIndex = index;
+				if (index == this.categoryListIndex) return;
 				this.getNotePage();
 				// 如果为0，意味着尚未初始化
 				if (this.menuHeight == 0 || this.menuItemHeight == 0) {
@@ -211,14 +254,85 @@
 					}).exec();
 				})
 			},
-
-
+			// 打开抽屉方法
 			showDrawer() {
 				this.$refs.showRight.open();
 			},
+			// 关闭抽屉方法
 			closeDrawer() {
 				this.$refs.showRight.close();
 			},
+			// 悬浮按钮---触发方法
+			fabClick() {
+				console.log("fabClick---:")
+			},
+			//悬浮按钮---弹框内按钮---触发方法
+			fabTrigger(option) {
+				this.uniFabOption.content[option.index].active = this.uniFabOption.doactive[this.uniFabOption.content[
+						option.index]
+					.active];
+				if (0 == option.index) {
+					this.showDrawer();
+				} else if (1 == option.index) {
+					// 添加
+					this.uniFabOption.notePopupForm.doAdd = true;
+
+					this.uniFabOption.notePopupForm.id = "";
+					this.uniFabOption.notePopupForm.remark = "";
+					this.uniFabOption.notePopupForm.link = "";
+					this.uniFabOption.notePopupForm.source = "";
+					this.uniFabOption.notePopupForm.remark = "";
+
+					this.uniFabOption.notePopupShow = !this.uniFabOption.notePopupShow;
+				} else if (2 == option.index) {
+					this.uniFabOption.categoryPopupShow = !this.uniFabOption.categoryPopupShow;
+				}
+			},
+
+			clickSwipeAction(index, index1) {
+				this.noteListIndex = index;
+				if (index1 == 1) {
+					this.noteDelete(this.mainDataArr[this.categoryListIndex].records[index].id)
+				} else {
+					this.mainDataArr[this.categoryListIndex].records[index].show = false;
+					this.uniFabOption.notePopupForm.doAdd = false;
+
+					this.uniFabOption.notePopupForm.id = this.mainDataArr[this.categoryListIndex].records[index].id;
+					this.uniFabOption.notePopupForm.remark = this.mainDataArr[this.categoryListIndex].records[index]
+						.remark;
+					this.uniFabOption.notePopupForm.link = this.mainDataArr[this.categoryListIndex].records[index].link;
+					console.log("this.mainDataArr[this.categoryListIndex].records[index].source=" + this.mainDataArr[this
+							.categoryListIndex].records[index]
+						.source)
+					if (null != this.mainDataArr[this.categoryListIndex].records[index]
+						.source && "" != this.mainDataArr[this.categoryListIndex].records[index]
+						.source) {
+						this.uniFabOption.notePopupForm.source = this.mainDataArr[this.categoryListIndex].records[index]
+							.source;
+						
+						this.uniFabOption.notePopupForm.source = this.getWebSiteSourceName('sourceCode');
+					}
+
+					this.uniFabOption.notePopupShow = true;
+				}
+			},
+			// 如果打开一个的时候，不需要关闭其他，则无需实现本方法
+			openSwipeAction(index) {
+				// 先将正在被操作的swipeAction标记为打开状态，否则由于props的特性限制，
+				// 原本为'false'，再次设置为'false'会无效
+				this.mainDataArr[this.categoryListIndex].records[index].show = true;
+				this.mainDataArr[this.categoryListIndex].records.map((val, idx) => {
+					if (index != idx) this.mainDataArr[this.categoryListIndex].records[idx].show = false;
+				})
+			},
+			closeSwipeAction(index) {
+				this.mainDataArr[this.categoryListIndex].records[index].show = false;
+			},
+			clickSwipeActionContent(index) {
+				// console.log(index);
+			},
+
+			// ************************业务接口请求---开始***********
 			//查询左侧分类字典列表
 			getCategoryList(typeCode) {
 				let params = {
@@ -232,39 +346,102 @@
 					}
 				})
 			},
-			// 查询右侧list数据
+			// 分类添加接口
+			categoryAdd() {
+				let params = {
+					"categoryName": this.uniFabOption.categoryPopupForm.name,
+					"parentId": "218489046686535680",
+					"typeCode":"note",
+					"categoryCode": this.uniFabOption.categoryPopupForm.name
+				};
+				this.$u.api.categoryAdd(params).then(res => {
+					this.getCategoryList(this.pageParam.categoryType);
+				})
+			},
+
+
+			//查询笔记来源网址
+			getWebSiteSources(typeCode) {
+				let params = {};
+				this.$u.api.getWebSiteSources(params).then(res => {
+					console.log(JSON.stringify(res))
+					if (null != res && res.value.length > 0) {
+						this.noteSourceOption.infoArr = res.value;
+						for (var i = 0; i < res.value.length; i++) {
+							this.noteSourceOption.arr[i] = res.value[i].sourceName;
+						}
+					}
+				})
+			},
+			// 查询笔记list数据
 			getNotePage() {
-				if (this._mainDataArr[this.current] != undefined &&
-					this._mainDataArr[this.current] != null &&
-					this._mainDataArr[this.current]['records'] == null) {
+				if (this._mainDataArr[this.categoryListIndex] != undefined &&
+					this._mainDataArr[this.categoryListIndex] != null &&
+					this._mainDataArr[this.categoryListIndex]['records'] == null) {
 					let params = {
 						"categoryId": this.categoryId,
 						"pageNum": 1,
-						"pageSize": 20
+						"pageSize": 30
 					}
 					this.$u.api.getNotePage(params).then(res => {
-						this._mainDataArr[this.current]['records'] = res.value.records;
+						res.value.records.forEach(obj => {
+							obj['show'] = false;
+						})
+						this._mainDataArr[this.categoryListIndex]['records'] = res.value.records;
 						this.mainDataArr = this._mainDataArr;
 					})
 				}
 			},
-			// 悬浮按钮---触发方法
-			fabClick() {
-				console.log("fabClick---:")
+			// 笔记添加接口
+			noteAdd() {
+				let _source = this.getWebSiteSourceName('sourceName');
+				
+				let params = {
+					"categoryId": this.mainDataArr[this.categoryListIndex].id,
+					"link": this.uniFabOption.notePopupForm.link,
+					"remark": this.uniFabOption.notePopupForm.remark,
+					"source": _source
+				};
+				this.$u.api.noteAdd(params).then(res => {
+					console.log("-----noteAdd")
+					console.log(JSON.stringify(res))
+				})
 			},
-			//悬浮按钮---弹框内按钮---触发方法
-			fabTrigger(option) {
-				this.uniFabOption.content[option.index].active = this.uniFabOption.doactive[this.uniFabOption.content[
-						option.index]
-					.active];
-				console.log("悬浮按钮---------------", option)
-				if (0 == option.index) {
-					this.showDrawer();
-				}
-				if (1 == option.index) {
-					this.uniFabOption.popupShow = !this.uniFabOption.popupShow;
-				}
+			noteDelete(id) {
+				let params = {
+					"id": id
+				};
+				this.$u.api.noteDelete(params).then(res => {
+					this.mainDataArr[this.categoryListIndex].records.splice(this.noteListIndex, 1);
+					this.$u.toast(`删除了第${this.noteListIndex}条笔记`);
+				});
 			},
+			noteUpdate(id) {
+				let _source = this.getWebSiteSourceName('sourceName');
+				let params = {
+					"id": this.uniFabOption.notePopupForm.id,
+					"categoryId": this.mainDataArr[this.categoryListIndex].id,
+					"link": this.uniFabOption.notePopupForm.link,
+					"remark": this.uniFabOption.notePopupForm.remark,
+					"source": _source
+				};
+				this.$u.api.noteUpdate(params).then(res => {
+					this.$u.toast(`修改了第${this.noteListIndex}条笔记`);
+				});
+			},
+			// 获取网站来源name
+			getWebSiteSourceName(field) {
+				var str="";
+				this.noteSourceOption.infoArr.forEach(obj => {
+					if (obj[field] == this.uniFabOption.notePopupForm.source) {
+						str= obj[field];
+					}
+				});
+				return str;
+			}
+
+			// ************************业务接口请求---开始***********
+
 
 		}
 	}
@@ -273,7 +450,6 @@
 <style lang="scss" scoped>
 	@import '@/common/uni-ui.scss';
 
-	// ********************************列表开始********************************
 	.u-wrap {
 		height: calc(100vh);
 		/* #ifdef H5 */
@@ -307,11 +483,39 @@
 		margin-left: 10rpx;
 	}
 
-	// .u-tab-view {
-	// 	width: 200rpx;
-	// 	height: 100%;
-	// }
+	.right-box {
+		background-color: rgb(250, 250, 250);
+	}
 
+	.page-view {
+		padding: 0rpx 20rpx;
+	}
+
+	.class-item {
+		// margin-bottom: 30rpx;
+		// background-color: #fff;
+		// padding: 20rpx 20rpx;
+		// border-radius: 8rpx;
+
+		border-width: 1px;
+		border-color: #ddd;
+		border-style: dashed;
+		background-color: #fafafa;
+		padding: 0px 10px;
+		border-radius: 3px;
+	}
+
+	.item-title {
+		font-size: 26rpx;
+		color: $u-main-color;
+		font-weight: bold;
+	}
+
+	.item-container {
+		text-align: center;
+	}
+
+	// ********************************左侧开始********************************
 	.u-tab-item {
 		height: 110rpx;
 		background: #f6f6f6;
@@ -342,46 +546,49 @@
 		top: 39rpx;
 	}
 
-	.right-box {
-		background-color: rgb(250, 250, 250);
+	//********************************左侧结束********************************
+
+	// ********************************滑块开始********************************
+	.title-swipe-action {
+		margin-top: 25rpx;
+		text-align: left;
+		font-size: 28rpx;
+		color: #303133;
 	}
 
-	.page-view {
-		padding: 16rpx;
-	}
-
-	.class-item {
-		margin-bottom: 30rpx;
-		background-color: #fff;
-		padding: 16rpx;
-		border-radius: 8rpx;
-	}
-
-	.item-title {
+	.title1-swipe-action {
+		margin-top: 15rpx;
+		text-align: left;
 		font-size: 26rpx;
-		color: $u-main-color;
-		font-weight: bold;
 	}
 
-	.item-container {
-		display: flex;
-		flex-wrap: wrap;
+	.title2-swipe-action {
+		margin-top: 15rpx;
+		margin-bottom: 25rpx;
+		font-size: 26rpx;
+		color: #909399;
 	}
 
-	// ********************************列表结束********************************
+	.title3-swipe-action {
+		margin-top: 25rpx;
+		text-align: left;
+		font-size: 24rpx;
+		color: #606266;
+	}
+
+	// ********************************滑块结束********************************
+
 
 
 	//********************************弹出层开始********************************
 	.popup-content {
-		padding: 110rpx 40rpx 24rpx 40rpx;
+		padding: 70rpx 65rpx 24rpx 60rpx;
 		text-align: center;
 	}
 
-	.submit-class {
-		width: 400rpx;
+	.submit-btn-popup-form {
+		// width: 700rpx;
 	}
-
-
 
 	.uni-ellipsis-2 {
 		overflow: hidden;

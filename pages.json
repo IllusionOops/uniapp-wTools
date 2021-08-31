@@ -34,7 +34,16 @@
 					// "navigationBarTextStyle": "white" // 状态栏字体为白色
 				}
 			}
-		]
+		    ,{
+                    "path" : "indexbak/indexbak",
+                    "style" :                                                                                    
+                {
+                    "navigationBarTitleText": "",
+                    "enablePullDownRefresh": false
+                }
+                
+                }
+            ]
 	}],
 
 	"globalStyle": {
