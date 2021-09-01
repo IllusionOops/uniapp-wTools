@@ -1,5 +1,6 @@
 <template>
 	<view class="u-wrap">
+		
 		<view class="u-search-box">
 			<view class="u-search-inner">
 				<u-icon name="search" color="#909399" :size="28"></u-icon>
@@ -20,9 +21,13 @@
 				</scroll-view>
 			</view>
 		</uni-drawer>
+		
 		<!-- 主要列表展示 -->
-		<view class="u-menu-wrap">
-			<block v-for="(item,index) in mainDataArr" :key="index">
+		<view>
+			<view style="text-align: center;">
+				<u-loading :show="loadingFlag" mode="flower" size="100"></u-loading>
+			</view>
+			<block v-if="!loadingFlag" v-for="(item,index) in mainDataArr" :key="index">
 				<scroll-view scroll-y class="right-box" v-if="categoryListIndex==index">
 					<view class="page-view">
 						<view class="class-item">
@@ -76,9 +81,10 @@
 				:horizontal="uniFabOption.horizontal" :vertical="uniFabOption.vertical"
 				:direction="uniFabOption.direction" @trigger="fabTrigger" @fabClick="fabClick"></uni-fab>
 		</view>
+		
 		<!-- 悬浮框--笔记添加弹出框 -->
 		<view>
-			<u-popup v-model="uniFabOption.notePopupShow" mode="bottom" border-radius="14" :closeable="true"
+			<u-popup v-model="uniFabOption.notePopupShowFlag" mode="bottom" border-radius="14" :closeable="true"
 				close-icon-pos="top-right" height="600rpx">
 				<view class="popup-content">
 					<u-form :model="uniFabOption.notePopupForm" ref="noteForm">
@@ -93,10 +99,10 @@
 						<u-form-item label="备注">
 							<u-input v-model="uniFabOption.notePopupForm.remark" :border="true" />
 						</u-form-item>
-						<u-button v-if="uniFabOption.notePopupForm.doAdd" style="margin-top: 30rpx;"
+						<u-button v-if="uniFabOption.notePopupForm.doAddFlag" style="margin-top: 30rpx;"
 							class='submit-btn-popup-form' @click="noteAdd">添加
 						</u-button>
-						<u-button v-if="uniFabOption.notePopupForm.doAdd==false" style="margin-top: 30rpx;"
+						<u-button v-if="uniFabOption.notePopupForm.doAddFlag==false" style="margin-top: 30rpx;"
 							class='submit-btn-popup-form' @click="noteUpdate">修改
 						</u-button>
 					</u-form>
@@ -106,7 +112,7 @@
 
 		<!-- 悬浮框--分类添加弹出框 -->
 		<view>
-			<u-popup v-model="uniFabOption.categoryPopupShow" mode="bottom" border-radius="14" :closeable="true"
+			<u-popup v-model="uniFabOption.categoryPopupShowFlag" mode="bottom" border-radius="14" :closeable="true"
 				close-icon-pos="top-right" height="400rpx">
 				<view class="popup-content">
 					<u-form :model="uniFabOption.categoryPopupForm" ref="categoryForm">
@@ -127,6 +133,8 @@
 	export default {
 		data() {
 			return {
+				// 是否显示正在加载
+				loadingFlag:true,
 				// 界面接收到的参数
 				pageParam: {},
 
@@ -154,7 +162,7 @@
 						"": "active"
 					},
 					//popup
-					notePopupShow: false,
+					notePopupShowFlag: false,
 					notePopupForm: {
 						id: "",
 						remark: '',
@@ -162,9 +170,9 @@
 						source: "",
 
 						// 是否是添加模式
-						doAdd: true
+						doAddFlag: true
 					},
-					categoryPopupShow: false,
+					categoryPopupShowFlag: false,
 					categoryPopupForm: {
 						name: '',
 					},
@@ -275,7 +283,7 @@
 					this.showDrawer();
 				} else if (1 == option.index) {
 					// 添加
-					this.uniFabOption.notePopupForm.doAdd = true;
+					this.uniFabOption.notePopupForm.doAddFlag = true;
 
 					this.uniFabOption.notePopupForm.id = "";
 					this.uniFabOption.notePopupForm.remark = "";
@@ -283,27 +291,26 @@
 					this.uniFabOption.notePopupForm.source = "";
 					this.uniFabOption.notePopupForm.remark = "";
 
-					this.uniFabOption.notePopupShow = !this.uniFabOption.notePopupShow;
+					this.uniFabOption.notePopupShowFlag = !this.uniFabOption.notePopupShowFlag;
 				} else if (2 == option.index) {
-					this.uniFabOption.categoryPopupShow = !this.uniFabOption.categoryPopupShow;
+					this.uniFabOption.categoryPopupShowFlag = !this.uniFabOption.categoryPopupShowFlag;
 				}
 			},
-
+			// 列表滑动窗口的点击时间
 			clickSwipeAction(index, index1) {
 				this.noteListIndex = index;
 				if (index1 == 1) {
 					this.noteDelete(this.mainDataArr[this.categoryListIndex].records[index].id)
 				} else {
 					this.mainDataArr[this.categoryListIndex].records[index].show = false;
-					this.uniFabOption.notePopupForm.doAdd = false;
+					this.uniFabOption.notePopupForm.doAddFlag = false;
 
 					this.uniFabOption.notePopupForm.id = this.mainDataArr[this.categoryListIndex].records[index].id;
 					this.uniFabOption.notePopupForm.remark = this.mainDataArr[this.categoryListIndex].records[index]
 						.remark;
 					this.uniFabOption.notePopupForm.link = this.mainDataArr[this.categoryListIndex].records[index].link;
-					console.log("this.mainDataArr[this.categoryListIndex].records[index].source=" + this.mainDataArr[this
-							.categoryListIndex].records[index]
-						.source)
+					this.uniFabOption.notePopupForm.source="";
+					console.log(JSON.stringify(this.mainDataArr[this.categoryListIndex].records[index]))
 					if (null != this.mainDataArr[this.categoryListIndex].records[index]
 						.source && "" != this.mainDataArr[this.categoryListIndex].records[index]
 						.source) {
@@ -313,7 +320,7 @@
 						this.uniFabOption.notePopupForm.source = this.getWebSiteSourceName('sourceCode');
 					}
 
-					this.uniFabOption.notePopupShow = true;
+					this.uniFabOption.notePopupShowFlag = true;
 				}
 			},
 			// 如果打开一个的时候，不需要关闭其他，则无需实现本方法
@@ -378,19 +385,23 @@
 				if (this._mainDataArr[this.categoryListIndex] != undefined &&
 					this._mainDataArr[this.categoryListIndex] != null &&
 					this._mainDataArr[this.categoryListIndex]['records'] == null) {
-					let params = {
-						"categoryId": this.categoryId,
-						"pageNum": 1,
-						"pageSize": 30
-					}
-					this.$u.api.getNotePage(params).then(res => {
-						res.value.records.forEach(obj => {
-							obj['show'] = false;
-						})
-						this._mainDataArr[this.categoryListIndex]['records'] = res.value.records;
-						this.mainDataArr = this._mainDataArr;
-					})
+					this.doGetNotePage();
 				}
+			},
+			doGetNotePage(){
+				let params = {
+					"categoryId": this.categoryId,
+					"pageNum": 1,
+					"pageSize": 30
+				}
+				this.$u.api.getNotePage(params).then(res => {
+					this.loadingFlag=false;
+					res.value.records.forEach(obj => {
+						obj['show'] = false;
+					})
+					this._mainDataArr[this.categoryListIndex]['records'] = res.value.records;
+					this.mainDataArr = this._mainDataArr;
+				})
 			},
 			// 笔记添加接口
 			noteAdd() {
@@ -427,14 +438,18 @@
 				};
 				this.$u.api.noteUpdate(params).then(res => {
 					this.$u.toast(`修改了第${this.noteListIndex}条笔记`);
+					this.uniFabOption.notePopupShowFlag=false;
+					this.doGetNotePage()();
 				});
 			},
 			// 获取网站来源name
 			getWebSiteSourceName(field) {
 				var str="";
 				this.noteSourceOption.infoArr.forEach(obj => {
+					console.log(obj[field])
 					if (obj[field] == this.uniFabOption.notePopupForm.source) {
 						str= obj[field];
+						
 					}
 				});
 				return str;

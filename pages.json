@@ -33,17 +33,15 @@
 					// "navigationStyle": "custom", // 隐藏系统导航栏
 					// "navigationBarTextStyle": "white" // 状态栏字体为白色
 				}
+			}, {
+				"path": "category",
+				"style": {
+					"navigationBarTitleText": "category",
+					"enablePullDownRefresh": false
+				}
+
 			}
-		    ,{
-                    "path" : "indexbak/indexbak",
-                    "style" :                                                                                    
-                {
-                    "navigationBarTitleText": "",
-                    "enablePullDownRefresh": false
-                }
-                
-                }
-            ]
+		]
 	}],
 
 	"globalStyle": {
