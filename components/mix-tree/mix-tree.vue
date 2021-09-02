@@ -1,28 +1,36 @@
 <template>
 	<view class="content">
 		<view class="mix-tree-list">
-			<block v-for="(item, index) in treeList" :key="index">
+			<block v-for="(item, index) in treeNodeList" :key="index">
 				<view class="mix-tree-item" :style="[{
-								paddingLeft: item.rank*15 + 'px',
-								zIndex: item.rank*-1 +50
+								paddingLeft: (item.level-1)*15 + 'px',
+								zIndex: (item.level-1)*-1 +50
 							}]" :class="{
 								border: treeParams.border === true,
 								show: item.show,
 								last: item.lastRank,
 								showchild: item.showChild
-							}" @click.stop="treeItemTap(item, index)">
+							}">
+					<view @click.stop="treeItemTap(item, index)">
+						<u-icon size="40" width="26upx" height="26upx" :label="item.name"
+							:name="item.lastRank ? treeParams.lastIcon : item.showChild ? treeParams.currentIcon : treeParams.defaultIcon">
+						</u-icon>
+					</view>
+					<view @click.stop="showAddModal(item, index)">
+						<u-icon name="plus" class="right-mix-tree-icon"></u-icon>
+					</view>
 
-					<!-- 	<image class="left-mix-tree-icon"
-						:src="item.lastRank ? treeParams.lastIcon : item.showChild ? treeParams.currentIcon : treeParams.defaultIcon">
-					</image>
-					{{item.name}}
-					 -->
-					<u-icon size="40" width="26upx" height="26upx" :label="item.name"
-						:name="item.lastRank ? treeParams.lastIcon : item.showChild ? treeParams.currentIcon : treeParams.defaultIcon">
-					</u-icon>
-					<u-icon name="plus" class="right-mix-tree-icon"></u-icon>
 				</view>
 			</block>
+		</view>
+
+		<view v-if="addModal.modalShowFlag" style="text-align: center;display: flex;">
+			<u-modal v-model="addModal.modalShowFlag" :show-cancel-button="true" @confirm="addConfirm" title="添加"
+				:title-style="{color:'#2979ff'}">
+				<u-field v-model="addModal.name" label="分类名称" placeholder="请填写分类名称">
+				</u-field>
+			</u-modal>
+
 		</view>
 	</view>
 </template>
@@ -45,14 +53,25 @@
 		},
 		data() {
 			return {
-				treeList: [],
-				_treeList: [],
+				// 树形菜单数据
+				treeNodeList: [],
+				_treeNodeList: [],
+				// 树形菜单参数
 				treeParams: {
 					defaultIcon: '/static/mix-tree/defaultIcon.png',
 					currentIcon: '/static/mix-tree/currentIcon.png',
 					lastIcon: '',
 					border: false
-				}
+				},
+				// 当前树形菜单数据
+				currentTreeNode: {},
+
+				// 添加模态框参数
+				addModal: {
+					modalShowFlag: false,
+					name: ""
+				},
+
 			}
 		},
 		watch: {
@@ -60,37 +79,57 @@
 			list: {
 				handler(newList, oldList) {
 					this.treeParams = Object.assign(this.treeParams, this.params);
-					this._treeList = [];
-					this.renderTreeList(newList);
-					this.treeList = this._treeList;
+					this._treeNodeList = [];
+					this.rendertreeNodeList(newList);
+					this.treeNodeList = this._treeNodeList;
 				},
 				// immediate: true,
 				deep: true
 			}
 		},
 		methods: {
+			// 打开添加modal
+			showAddModal(item, index) {
+				if (item.children == null) {
+					item.children = [];
+				}
+				this.currentTreeNode = item;
+				this.addModal.modalShowFlag = !this.addModal.modalShowFlag;
+			},
+			// 添加分类
+			addConfirm() {
+				let params = {
+					"categoryName": this.addModal.name,
+					"parentId": this.currentTreeNode.parentId,
+					"typeCode": "note",
+					"categoryCode": this.addModal.name
+				};
+				this.$u.api.categoryAdd(params).then(res => {
+					let item = res.value;
+					item.showChild = false;
+					item.show = item.level > 1
+					this.currentTreeNode.children.push(item);
+					console.log("this.treeNodeList=" + JSON.stringify(this.treeNodeList))
+				})
+			},
 			//扁平化树结构
-			renderTreeList(list = [], rank = 0, parentId = []) {
+			rendertreeNodeList(list = []) {
+				console.log("list=" + JSON.stringify(list))
 				list.forEach(item => {
-					this._treeList.push({
-						id: item.id,
-						name: item.name,
-						parentId, // 父级id数组
-						rank, // 层级
-						showChild: false, //子级是否显示
-						show: rank === 0 // 自身是否显示
-					})
+					//子级是否显示
+					item.showChild = false; //子级是否显示
+					item.show = item.level > 1; // 自身是否显示
+					this._treeNodeList.push(item);
 					if (Array.isArray(item.children) && item.children.length > 0) {
-						let parents = [...parentId];
-						parents.push(item.id);
-						this.renderTreeList(item.children, rank + 1, parents);
+						this.rendertreeNodeList(item.children);
 					} else {
-						this._treeList[this._treeList.length - 1].lastRank = true;
+						this._treeNodeList[this._treeNodeList.length - 1].lastRank = true;
 					}
 				})
 			},
 			// 点击
 			treeItemTap(item) {
+				this.currentTreeNode = item;
 				let list = this.treeList;
 				let id = item.id;
 				if (item.lastRank === true) {
@@ -102,7 +141,7 @@
 				list.forEach(childItem => {
 					if (item.showChild === false) {
 						//隐藏所有子级
-						if (!childItem.parentId.includes(id)) {
+						if (!childItem.parentId === id) {
 							return;
 						}
 						if (childItem.lastRank !== true) {
@@ -110,7 +149,7 @@
 						}
 						childItem.show = false;
 					} else {
-						if (childItem.parentId[childItem.parentId.length - 1] === id) {
+						if (childItem.parentId === id) {
 							childItem.show = true;
 						}
 					}
