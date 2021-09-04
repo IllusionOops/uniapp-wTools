@@ -1,47 +1,36 @@
 <template>
 	<view class="content">
-		<mix-tree :list="treeNodeList" @treeItemClick="treeItemClick"></mix-tree>
-
-		<u-button @click="click"></u-button>
+		<view class="u-search-box">
+			<view class="u-search-inner">
+				<u-icon name="search" color="#909399" :size="28"></u-icon>
+				<text class="u-search-text">搜索uView</text>
+			</view>
+		</view>
+		<category-tree :list="treeNodeList" @treeNodeClick="treeNodeClick" @treeNodeAdd="treeNodeAdd"
+			@treeNodeUpdate="treeNodeUpdate" @treeNodeDelete="treeNodeDelete">
+		</category-tree>
 	</view>
-
-
 </template>
 
 <script>
-	import mixTree from '@/components/mix-tree/mix-tree';
-	let treeNodeList = [];
+	import categoryTree from '@/components/mix-tree/category-tree.vue';
 	export default {
 		components: {
-			mixTree
+			categoryTree
 		},
 		data() {
 			return {
-				list: [],
+				treeNodeList: [],
 				num: 0
 			}
 		},
 		onLoad() {
-			
+
 			setTimeout(() => {
 				this.getCategoryList();
 			}, 300)
 		},
 		methods: {
-			//点击最后一级时触发该事件
-			
-			treeItemClick(item) {
-				let {
-					id,
-					name,
-					parentId
-				} = item;
-				uni.showModal({
-					content: `点击了${parentId.length+1}级菜单, ${name}, id为${id}, 父id为${parentId.toString()}`
-				})
-				console.log(item)
-			},
-			
 			//查询树结构数据
 			getCategoryList() {
 				let params = {
@@ -54,20 +43,68 @@
 				})
 			},
 
-			click() {
-				this.num = this.num + 1;
-				console.log("num=" + this.num)
-
-				let _obj = {
-					id: 10 + this.num,
-					name: '北京市',
-				};
-				this.list.push(_obj);
-			}
+			//树节点点击事件---点击最后一级时触发该事件
+			treeNodeClick(node) {
+				let {
+					id,
+					name,
+					parentId
+				} = node;
+				uni.showModal({
+					content: `点击了${parentId.length+1}级菜单, ${name}, id为${id}, 父id为${parentId.toString()}`
+				})
+				console.log(node)
+			},
+			//树节点删除事件---
+			treeNodeAdd(params,callback) {
+				// let params = {
+				// 	"categoryName": this.addModal.name,
+				// 	"parentId": this.currentTreeNode.id,
+				// 	"typeCode": this.currentTreeNode.typeCode,
+				// 	"categoryCode": this.addModal.name
+				// };
+				this.$u.api.categoryAdd(params).then(res => {
+					console.log("treeNodeAdd----")
+					this.getCategoryList();
+					callback(res);
+				});
+			},
+			//树节点删除事件---
+			treeNodeDelete(params, callback) {
+				this.$u.api.categoryDelete(params).then(res => {
+					console.log("treeNodeDelete")
+					this.getCategoryList();
+					callback(res);
+				});
+			},
+			//树节点修改事件---
+			treeNodeUpdate(params, callback) {
+				this.$u.api.categoryUpdate(params).then(res => {
+					console.log("treeNodeUpdate")
+					this.getCategoryList();
+					callback(res);
+				});
+			},
 		}
 	}
 </script>
 
-<style>
+<style lang="scss" scoped>
+	.u-search-box {
+		padding: 18rpx 30rpx;
+	}
 
+	.u-search-inner {
+		background-color: rgb(234, 234, 234);
+		border-radius: 100rpx;
+		display: flex;
+		align-items: center;
+		padding: 10rpx 16rpx;
+	}
+
+	.u-search-text {
+		font-size: 26rpx;
+		color: $u-tips-color;
+		margin-left: 10rpx;
+	}
 </style>

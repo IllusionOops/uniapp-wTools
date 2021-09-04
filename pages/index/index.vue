@@ -55,9 +55,9 @@
 						"url": "pages/note/index"
 					},
 					{
-						"text": "abc",
+						"text": "笔记本2",
 						"icon": "integral",
-						"url": "pages/note/index"
+						"url": "pages/note/category"
 					},
 					{
 						"text": "abc",

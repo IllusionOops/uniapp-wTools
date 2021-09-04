@@ -1,6 +1,5 @@
 <template>
 	<view class="u-wrap">
-		
 		<view class="u-search-box">
 			<view class="u-search-inner">
 				<u-icon name="search" color="#909399" :size="28"></u-icon>
@@ -262,14 +261,7 @@
 					}).exec();
 				})
 			},
-			// 打开抽屉方法
-			showDrawer() {
-				this.$refs.showRight.open();
-			},
-			// 关闭抽屉方法
-			closeDrawer() {
-				this.$refs.showRight.close();
-			},
+	
 			// 悬浮按钮---触发方法
 			fabClick() {
 				console.log("fabClick---:")
