@@ -45,15 +45,13 @@
 
 			//树节点点击事件---点击最后一级时触发该事件
 			treeNodeClick(node) {
-				let {
-					id,
-					name,
-					parentId
-				} = node;
-				uni.showModal({
-					content: `点击了${parentId.length+1}级菜单, ${name}, id为${id}, 父id为${parentId.toString()}`
+				// 带参数
+				this.$u.route({
+					url: "/pages/note/note",
+					params: {
+						categoryId: node.id
+					}
 				})
-				console.log(node)
 			},
 			//树节点删除事件---
 			treeNodeAdd(params,callback) {
@@ -85,6 +83,7 @@
 					callback(res);
 				});
 			},
+		
 		}
 	}
 </script>

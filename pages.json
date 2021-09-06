@@ -27,9 +27,10 @@
 		"pages": [
 			// test-测试
 			{
-				"path": "index",
+				"path": "note",
 				"style": {
-					"navigationBarTitleText": "note"
+					"navigationBarTitleText": "note",
+					"enablePullDownRefresh": false
 					// "navigationStyle": "custom", // 隐藏系统导航栏
 					// "navigationBarTextStyle": "white" // 状态栏字体为白色
 				}

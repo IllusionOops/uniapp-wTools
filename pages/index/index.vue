@@ -52,10 +52,10 @@
 				gridList: [{
 						"text": "笔记本",
 						"icon": "integral",
-						"url": "pages/note/index"
+						"url": "pages/note/category"
 					},
 					{
-						"text": "笔记本2",
+						"text": "abc",
 						"icon": "integral",
 						"url": "pages/note/category"
 					},
@@ -102,6 +102,7 @@
 		},
 		methods: {
 			gridClick(index) {
+				console.log("index="+index)
 				this.$u.route({
 					url: this.gridList[index].url,
 					params: {
