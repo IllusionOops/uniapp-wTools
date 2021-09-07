@@ -52,49 +52,49 @@
 				gridList: [{
 						"text": "笔记本",
 						"icon": "integral",
-						"url": "pages/note/index",
+						"url": "pages/note/category",
 						"categoryType":"note"
 					},
 					{
 						"text": "股票",
 						"icon": "red-packet",
 						"url": "pages/stock/index",
-						"categoryType":"stock"
+						"categoryType":"stock",
 					},
 					{
 						"text": "abc",
 						"icon": "integral",
-						"url": "pages/note/index"
+						"url": "pages/note/category"
 					},
 					{
 						"text": "abc",
 						"icon": "integral",
-						"url": "pages/note/index"
+						"url": "pages/note/category"
 					},
 					{
 						"text": "abc",
 						"icon": "integral",
-						"url": "pages/note/index"
+						"url": "pages/note/category"
 					},
 					{
 						"text": "abc",
 						"icon": "integral",
-						"url": "pages/note/index"
+						"url": "pages/note/category"
 					},
 					{
 						"text": "abc",
 						"icon": "integral",
-						"url": "pages/note/index"
+						"url": "pages/note/category"
 					},
 					{
 						"text": "abc",
 						"icon": "integral",
-						"url": "pages/note/index"
+						"url": "pages/note/category"
 					},
 					{
 						"text": "abc",
 						"icon": "integral",
-						"url": "pages/note/index"
+						"url": "pages/note/category"
 					}
 				],
 				current: 0,
@@ -104,6 +104,7 @@
 		},
 		methods: {
 			gridClick(index) {
+				console.log("index="+index)
 				this.$u.route({
 					url: this.gridList[index].url,
 					params: {

@@ -5,9 +5,13 @@ var loginUrl = '/sys-user/login';
 
 var noteUrlDict = {
 	// 根据typeCode查询分类列表
-	'getListByTypeCodeUrl': '/sys-category/getListByTypeCode',
+	'getCategoryListByTypeCodeUrl': '/sys-category/getListByTypeCode',
 	// 添加分类
 	'categoryAddUrl':"/sys-category/add",
+	// 删除分类
+	'categoryDeleteUrl':"/sys-category/deleteById",
+	// 修改分类
+	'categoryUpdateUrl':"/sys-category/update",
 	//笔记列表查询url
 	'getNotePageUrl': '/tools-note/page',
 	// 笔记添加
@@ -36,9 +40,10 @@ const install = (Vue, vm) => {
 	// 	}) => vm.$u.post(noteUrlDict.getNotePageUrl, params)
 	// }
 	//查询分类字典
-	let getCategoryListByTypeCode = (params = {}) => vm.$u.get(noteUrlDict.getListByTypeCodeUrl, params);
-	// 添加分类
+	let getCategoryListByTypeCode = (params = {}) => vm.$u.get(noteUrlDict.getCategoryListByTypeCodeUrl, params);
 	let categoryAdd =(params = {}) => vm.$u.post(noteUrlDict.categoryAddUrl, params);
+	let categoryDelete =(params = {}) => vm.$u.post(noteUrlDict.categoryDeleteUrl, params);
+	let categoryUpdate =(params = {}) => vm.$u.post(noteUrlDict.categoryUpdateUrl, params);
 	//笔记列表查询
 	let getNotePage = (params = {
 		"categoryId": "218468297832599552",
@@ -61,6 +66,8 @@ const install = (Vue, vm) => {
 		login,
 		getCategoryListByTypeCode,
 		categoryAdd,
+		categoryDelete,
+		categoryUpdate,
 		getNotePage,
 		noteAdd,
 		noteDelete,
