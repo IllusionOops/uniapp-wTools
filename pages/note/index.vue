@@ -21,7 +21,7 @@
 			</view>
 		</uni-drawer>
 		<!-- 主要列表展示 -->
-		<view class="u-menu-wrap">
+		<view class="u-menu-wrap" >
 			<block v-for="(item,index) in mainDataArr" :key="index">
 				<scroll-view scroll-y class="right-box" v-if="categoryListIndex==index">
 					<view class="page-view">
@@ -222,6 +222,12 @@
 			this.pageParam = option;
 			this.getCategoryList(this.pageParam.categoryType);
 		},
+		onPullDownRefresh() {
+			console.log('refresh');
+			setTimeout(function() {
+				uni.stopPullDownRefresh();
+			}, 1000);
+		},
 		methods: {
 			// 点击左边的栏目切换
 			async swichMenu(index) {
@@ -309,7 +315,7 @@
 						.source) {
 						this.uniFabOption.notePopupForm.source = this.mainDataArr[this.categoryListIndex].records[index]
 							.source;
-						
+
 						this.uniFabOption.notePopupForm.source = this.getWebSiteSourceName('sourceCode');
 					}
 
@@ -351,7 +357,7 @@
 				let params = {
 					"categoryName": this.uniFabOption.categoryPopupForm.name,
 					"parentId": "218489046686535680",
-					"typeCode":"note",
+					"typeCode": "note",
 					"categoryCode": this.uniFabOption.categoryPopupForm.name
 				};
 				this.$u.api.categoryAdd(params).then(res => {
@@ -395,7 +401,7 @@
 			// 笔记添加接口
 			noteAdd() {
 				let _source = this.getWebSiteSourceName('sourceName');
-				
+
 				let params = {
 					"categoryId": this.mainDataArr[this.categoryListIndex].id,
 					"link": this.uniFabOption.notePopupForm.link,
@@ -431,10 +437,10 @@
 			},
 			// 获取网站来源name
 			getWebSiteSourceName(field) {
-				var str="";
+				var str = "";
 				this.noteSourceOption.infoArr.forEach(obj => {
 					if (obj[field] == this.uniFabOption.notePopupForm.source) {
-						str= obj[field];
+						str = obj[field];
 					}
 				});
 				return str;
@@ -599,4 +605,5 @@
 	}
 
 	//********************************弹出层结束********************************
+	
 </style>

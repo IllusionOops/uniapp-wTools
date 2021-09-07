@@ -33,17 +33,30 @@
 					// "navigationStyle": "custom", // 隐藏系统导航栏
 					// "navigationBarTextStyle": "white" // 状态栏字体为白色
 				}
+			}, {
+				"path": "indexbak/indexbak",
+				"style": {
+					"navigationBarTitleText": "",
+					"enablePullDownRefresh": false
+				}
+
 			}
-		    ,{
-                    "path" : "indexbak/indexbak",
-                    "style" :                                                                                    
-                {
-                    "navigationBarTitleText": "",
-                    "enablePullDownRefresh": false
-                }
-                
-                }
-            ]
+		]
+	}, {
+		"root": "pages/stock", 
+		"pages": [
+			{
+				"path": "index",
+				"style": {
+					"navigationBarTitleText": "股票"
+				}
+			},
+			{
+				"path": "stockLine",
+				"style": {
+				}
+			}
+		]
 	}],
 
 	"globalStyle": {

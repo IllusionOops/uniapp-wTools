@@ -52,12 +52,14 @@
 				gridList: [{
 						"text": "笔记本",
 						"icon": "integral",
-						"url": "pages/note/index"
+						"url": "pages/note/index",
+						"categoryType":"note"
 					},
 					{
-						"text": "abc",
-						"icon": "integral",
-						"url": "pages/note/index"
+						"text": "股票",
+						"icon": "red-packet",
+						"url": "pages/stock/index",
+						"categoryType":"stock"
 					},
 					{
 						"text": "abc",
@@ -105,7 +107,7 @@
 				this.$u.route({
 					url: this.gridList[index].url,
 					params: {
-						categoryType:'note'
+						categoryType:this.gridList[index].categoryType
 					}
 				})
 				// uni.navigateTo({
