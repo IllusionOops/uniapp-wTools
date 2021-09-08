@@ -64,8 +64,20 @@
 				<!-- 表格数据行 -->
 				<uni-tr v-for="(item,index) in plateList" :key="index">
 					<uni-td align="center">{{index+1}}</uni-td>
-					<uni-td align="center">{{item.name}}</uni-td>
-					<uni-td align="center">{{item.maxStockName}}</uni-td>
+					<uni-td align="center">
+						<navigator 
+							:url="'/pages/stock/plate?name='+item.name"
+							class="navigator-stock">
+							{{item.name}}
+						</navigator>
+					</uni-td>
+					<uni-td align="center">
+						<navigator 
+							:url="'/pages/stock/stockLine?stockNum='+item.maxStockNum+'&name='+item.maxStockName"
+							class="navigator-stock">
+							{{item.maxStockName}}
+						</navigator>
+					</uni-td>
 					<uni-td align="center">{{item.quoteChange}}%</uni-td>
 					<uni-td align="center">{{item.inFlowNet}}</uni-td>
 				</uni-tr>
